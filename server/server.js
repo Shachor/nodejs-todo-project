@@ -29,9 +29,15 @@ app.post('/todos', (req, res) => {
   }, (e) => {
     res.status(400).send(e);
   });
-
 });
 
+app.get('/todos', (req, res) => {
+  Todo.find().then((todos) => {
+    res.send({todos});  //Best to send the object instead of array so we can add properties
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
 
 
 
