@@ -41,13 +41,18 @@ app.get('/todos', (req, res) => {
 
 
 
-app.listen(3000, () => {
-  console.log('Starting Server on port 3000');
-});
+// app.listen(3000, () => {
+//   console.log('Starting Server on port 3000');
+// });
 
+var server = app.listen(3000);
+console.log(`Starting Server on port 3000`);
 
 // USED FOR TESTING
-module.exports = {app};
+module.exports = {
+  app,
+  server
+};
 
 
 //=============================================================================
