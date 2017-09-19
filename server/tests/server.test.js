@@ -1,13 +1,16 @@
-// const {server, app} = require('./../server')
-
+// ADDING MODULE DEPENDENCIES
 const request = require('supertest');   // MAKE SURE TO NAME IT REQUEST
 const expect = require('expect');
 
 
-// ADDING DEPENDENCIES
+// ADDING OBJECT DEPENDENCIES
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
+
+// ==========================================================================
+// SETUP DATABASE TESTING ENVIRONMENT
+// ==========================================================================
 
 // CREATE DUMMY DATA TO FILL DATABASE
 const todos = [{
@@ -24,7 +27,13 @@ beforeEach((done) => {
   }).then(() => done());
 });
 
+// ==========================================================================
+
+
+
+// ==========================================================================
 // DESCRIBE for POST routes
+// ==========================================================================
 describe('POST /todos', () => {
   // CREATE A NEW todo
   it('should create a new todo', (done) => {
@@ -73,7 +82,14 @@ describe('POST /todos', () => {
   });
 });
 
+// ==========================================================================
+
+
+
+
+// ==========================================================================
 // DESCRIBE for GET /todos routes
+// ==========================================================================
 describe('GET /todos', () => {
   it('should get all todos', (done) => {
     request(app)
@@ -85,3 +101,5 @@ describe('GET /todos', () => {
       .end(done);
   });
 });
+
+// ==========================================================================
