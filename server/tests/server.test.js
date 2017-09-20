@@ -1,6 +1,7 @@
 // ADDING MODULE DEPENDENCIES
 const request = require('supertest');   // MAKE SURE TO NAME IT REQUEST
 const expect = require('expect');
+const {ObjectID} = require('mongodb');
 
 
 // ADDING OBJECT DEPENDENCIES
@@ -14,8 +15,10 @@ const {Todo} = require('./../models/todo');
 
 // CREATE DUMMY DATA TO FILL DATABASE
 const todos = [{
+  _id: new ObjectID(),
   text: "First test item"
 }, {
+  _id: new ObjectID(),
   text: "Second test item"
 }];
 
@@ -100,6 +103,41 @@ describe('GET /todos', () => {
       })
       .end(done);
   });
+});
+
+describe('GET /todos/:id', () => {
+  it('should return todo doc', (done) => {
+    request(app)
+      //We need to grab the _id property for the first todo. That's why we
+      //declare the ObjectID in the todo declaration above. Here we need to
+      //convert it to a string using .toHexString so we can pass it to request
+      .get(`/todos/${todos[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(todos[0].text)
+      })
+      .end(done);
+  });
+
+  it('should return a 404 if todo not found', (done) => {
+    //make req with real ObjectID, just not one in collection
+    var id = new ObjectID().toHexString();
+    request(app)
+      .get(`/todos/${id}`)
+      .expect(404)
+      .end(done);
+    // make sure you get 404 back
+  });
+
+  it('should return 404 for non-ObjectIDs', (done) => {
+    // send in /todos/123
+    request(app)
+      .get('/todos/123')
+      .expect(404)
+      .end(done);
+  });
+
+
 });
 
 // ==========================================================================
