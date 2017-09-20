@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const {ObjectID} = require('mongodb');
 
 // Require mongoose from the mongoose.js file. Using the ES6 destructuring method
 var {mongoose} = require('./db/mongoose');
@@ -39,19 +40,46 @@ app.get('/todos', (req, res) => {
   });
 });
 
+app.get('/todos/:id', (req, res) => {
+  var id = req.params.id;
+  // console.log(id);
+  //Validate id using isValid
+  // if not valid respond 404 - send back empty send
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  };
+
+  //findById
+  Todo.findById(id).then((todo) => {
+      if (todo) {
+        res.send({todo});
+      } else {
+        res.status(404).send();
+      }
+  }, (e) => {
+    res.status(400).send();
+  });
+    //successCase
+      //if todo - send it back
+      //if no todo - send back 404 with empty body
+    //errorCase
+      // Error 400 - Request not Valid (send empty)
 
 
-// app.listen(3000, () => {
-//   console.log('Starting Server on port 3000');
-// });
+});
 
-var server = app.listen(3000);
-console.log(`Starting Server on port 3000`);
+
+
+app.listen(3000, () => {
+  console.log('Starting Server on port 3000');
+});
+
+// var server = app.listen(3000);
+// console.log(`Starting Server on port 3000`);
 
 // USED FOR TESTING
 module.exports = {
-  app,
-  server
+  app
 };
 
 
