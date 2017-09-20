@@ -8,6 +8,7 @@ var {Todo} = require('./models/todo');
 var {user} = require('./models/user');
 
 var app = express();
+const port = process.env.PORT || 3000;
 
 // Mongoose connect info moved to db/mongoose.js
 
@@ -70,8 +71,8 @@ app.get('/todos/:id', (req, res) => {
 
 
 
-app.listen(3000, () => {
-  console.log('Starting Server on port 3000');
+app.listen(port, () => {
+  console.log(`Starting Server on port ${port}`);
 });
 
 // var server = app.listen(3000);
