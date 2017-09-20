@@ -65,8 +65,25 @@ app.get('/todos/:id', (req, res) => {
       //if no todo - send back 404 with empty body
     //errorCase
       // Error 400 - Request not Valid (send empty)
+});
 
+app.delete('/todos/:id', (req, res) => {
+  // get the id
+  var id = req.params.id;
+  //validate the id
+  if (!ObjectID.isValid(id)) {
+    //return 404 if not valid
+    return res.status(404).send();
+  }
 
+  //remove todo by id
+  Todo.findByIdAndRemove(id).then((result) => {
+    //success - if no doc, send 404. if doc send doc back with 200
+    if (!todo) {
+      return res.status(404).send();
+    }
+    res.status(200).send(JSON.stringify(result, undefined, 5));
+  }).catch((e) => res.status(400).send()); //error - send 400 and no body
 });
 
 
