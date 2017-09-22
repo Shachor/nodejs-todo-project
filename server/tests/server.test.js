@@ -20,6 +20,9 @@ const todos = [{
 }, {
   _id: new ObjectID(),
   text: "Second test item"
+// }, {
+//   _id: new ObjectID(),
+//   text: "THIRD test item"
 }];
 
 // REMOVE ENTRIES FROM DB BEFORE TESTING
@@ -136,8 +139,54 @@ describe('GET /todos/:id', () => {
       .expect(404)
       .end(done);
   });
-
-
 });
 
 // ==========================================================================
+
+
+
+// ==========================================================================
+// DESCRIBE for DELETE /todos/:id routes
+// ==========================================================================
+describe('DELETE /todos/:id', () => {
+  it('should delete todo by id', (done) => {
+    var hexId = todos[1]._id.toHexString();
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo._id).toBe(hexId);
+      })
+      // .end(done());
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        //query db with findById and make sure it doesn't exist (toNotExist)
+        Todo.findById(res.hexId).then((result) => {
+          expect(result).toEqual(null);
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
+  it('should return a 404 if todo not found', (done) => {
+    //make req with real ObjectID, just not one in collection
+    var id = new ObjectID().toHexString();
+    request(app)
+      .delete(`/todos/${id}`)
+      .expect(404)
+      .end(done);
+    // make sure you get 404 back
+  });
+
+  it('should return 404 for non-ObjectIDs', (done) => {
+    // send in /todos/123
+    request(app)
+      .delete('/todos/123')
+      .expect(404)
+      .end(done);
+  });
+
+
+});
