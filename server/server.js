@@ -77,12 +77,12 @@ app.delete('/todos/:id', (req, res) => {
   }
 
   //remove todo by id
-  Todo.findByIdAndRemove(id).then((result) => {
+  Todo.findByIdAndRemove(id).then((todo) => {
     //success - if no doc, send 404. if doc send doc back with 200
     if (!todo) {
       return res.status(404).send();
     }
-    res.status(200).send(JSON.stringify(result, undefined, 5));
+    res.status(200).send({todo});
   }).catch((e) => res.status(400).send()); //error - send 400 and no body
 });
 
