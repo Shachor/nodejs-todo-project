@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 // Require mongoose from the mongoose.js file. Using the ES6 destructuring method
 var {mongoose} = require('./db/mongoose');
@@ -21,6 +22,10 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // SET UP ROUTES
+
+//===========================================================================
+// GET and POST Routes
+//===========================================================================
 app.post('/todos', (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -66,7 +71,61 @@ app.get('/todos/:id', (req, res) => {
     //errorCase
       // Error 400 - Request not Valid (send empty)
 });
+//===========================================================================
+// END GET and POST Routes
+//===========================================================================
 
+
+
+//===========================================================================
+// UPDATE Routes
+//===========================================================================
+app.patch('/todos/:id', (req, res) => {
+  // Grab the id from the requesting page
+  var id = req.params.id;
+  // Use lodash.pick to pull an array of ONLY the text and completed
+  // properties from the requesting page's body, then put that Object
+  // into the var body. This means a user will ONLY be able to UPDATE
+  // those properties and nothing else.
+  var body = _.pick(req.body, ['text', 'completed']);
+  console.log({body});
+
+  // Make sure ObjectID is valid
+  if (!ObjectID.isValid(id)) {
+    console.log('BAD OID');
+    return res.status(404).send('BAD OID');
+  };
+
+  // Check for completed property and function accordingly
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  };
+
+  // Update the todo with data in body variable. Remember to use $set
+  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      console.log('NO DOCUMENT FOUND');
+      return res.status(404).send('NO DOCUMENT FOUND');
+    }
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+//===========================================================================
+// END UPDATE Routes
+//===========================================================================
+
+
+
+
+
+//===========================================================================
+// DELETE Routes
+//===========================================================================
 app.delete('/todos/:id', (req, res) => {
   // get the id
   var id = req.params.id;
@@ -85,12 +144,24 @@ app.delete('/todos/:id', (req, res) => {
     res.status(200).send({todo});
   }).catch((e) => res.status(400).send()); //error - send 400 and no body
 });
+//===========================================================================
+// END DELETE Routes
+//===========================================================================
+
+
+
+
+
+
 
 
 
 app.listen(port, () => {
   console.log(`Starting Server on port ${port}`);
 });
+
+
+
 
 // var server = app.listen(3000);
 // console.log(`Starting Server on port 3000`);
