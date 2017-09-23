@@ -88,7 +88,7 @@ app.patch('/todos/:id', (req, res) => {
   // into the var body. This means a user will ONLY be able to UPDATE
   // those properties and nothing else.
   var body = _.pick(req.body, ['text', 'completed']);
-  console.log({body});
+  // console.log({body});
 
   // Make sure ObjectID is valid
   if (!ObjectID.isValid(id)) {

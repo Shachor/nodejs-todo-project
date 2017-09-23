@@ -19,7 +19,9 @@ const todos = [{
   text: "First test item"
 }, {
   _id: new ObjectID(),
-  text: "Second test item"
+  text: "Second test item",
+  completed: true,
+  completedAt: 69
 // }, {
 //   _id: new ObjectID(),
 //   text: "THIRD test item"
@@ -187,6 +189,60 @@ describe('DELETE /todos/:id', () => {
       .expect(404)
       .end(done);
   });
-
-
 });
+// ==========================================================================
+
+
+
+// ==========================================================================
+// DESCRIBE for PATCH /todos/:id routes
+// ==========================================================================
+describe('PATCH /todos/:id', () => {
+  it('should update the todo', (done) => {
+    //grab id of first item
+    var hexId = todos[0]._id.toHexString();
+    var updatedTodo = {text: 'I am soooo tired', completed: true};
+    //make patch request
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(updatedTodo)
+      //update text
+      //set completed to true
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(updatedTodo.text);
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeA('number');
+      })
+      .end(done);
+        //make sure you get 200
+        // custom asertion - text is changed, completed true, completedAt is number .toBeA(number)
+
+  });
+
+  it('should clear completedAt when todo is not completed', (done) => {
+    //grab id of second todo
+    var hexId = todos[1]._id.toHexString();
+    var updatedTodo = {text: 'I am still soooo tired', completed: false};
+    //make patch request
+    request(app)
+      .patch(`/todos/${hexId}`)
+      .send(updatedTodo)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todo.text).toBe(updatedTodo.text);
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toNotExist();
+      })
+      .end(done);
+    //update text, set compelted to false
+      //assert 200
+      //assert response.body is now text and completed is now false, completedAt is null .toNotExist
+  });
+});
+
+
+
+
+
+// ==========================================================================
