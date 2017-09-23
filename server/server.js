@@ -1,3 +1,5 @@
+require('./config/config');   // DB ENV VARIABLES
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -9,7 +11,7 @@ var {Todo} = require('./models/todo');
 var {user} = require('./models/user');
 
 var app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT; // || 3000;
 
 // Mongoose connect info moved to db/mongoose.js
 

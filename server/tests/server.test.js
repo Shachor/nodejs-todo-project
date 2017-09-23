@@ -240,9 +240,4 @@ describe('PATCH /todos/:id', () => {
       //assert response.body is now text and completed is now false, completedAt is null .toNotExist
   });
 });
-
-
-
-
-
 // ==========================================================================
