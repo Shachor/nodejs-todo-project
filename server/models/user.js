@@ -47,9 +47,7 @@ UserSchema.methods.toJSON = function() {
 
    // We use _.pick to take ONLY the data we want to display (email, and _id)
    return _.pick(userObject, ['_id', 'email']);
-
 };
-
 
 
 
@@ -70,6 +68,31 @@ UserSchema.methods.generateAuthToken = function() {
    return user.save().then(() => {
       return token;  // this value will get returned as teh success argument for the Promise.
                      // It is then usable by the next .then() call, which will happen in server.js
+   });
+};
+
+
+// Using .statics makes this a MODEL method instead of an INSTANCE method (We use it with User instead of user.)
+UserSchema.statics.findByToken = function(token) {
+   var User = this;
+   var decoded;   // Leaving it undefined allows us to use try/catch on jwt.verify, capturing any errors that pop up
+
+   try{
+      // If the token is good, will populate decoded with the user data
+      decoded = jwt.verify(token, 'SecretValue');
+   } catch (e) {
+      // This will return a Promise with the reject() method, telling server.js that the token is unauthorized
+      // return new Promise((resolve, reject) => {
+      //    reject();
+      // });
+      return Promise.reject();   //If you return with a value, that value becomes (e) in the catch call in server.js
+   }
+
+
+   return User.findOne({
+      '_id': decoded._id,
+      'tokens.token': token,
+      'tokens.access': 'auth',
    });
 };
 // =============================================================================

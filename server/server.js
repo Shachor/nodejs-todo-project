@@ -9,6 +9,7 @@ const _ = require('lodash');
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
 var {User} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 const port = process.env.PORT; // || 3000;
@@ -182,6 +183,31 @@ app.post('/users', (req, res) => {
 // END USER Routes
 //===========================================================================
 
+
+
+
+
+// AUTH Test route
+app.get('/users/me', authenticate, (req, res) => {
+   res.send(req.user);
+
+   //Authenticate middleware stored in authenticate.js
+
+   // var token = req.header('x-auth');   //x-auth holds our token so we read it into our var token
+   //
+   // // We use the token in the header to try and decode and find the correct User
+   // // If found, the method returns the User data into the Promise
+   // User.findByToken(token).then((user) => {
+   //    // If token is good, but no user was found...
+   //    if (!user) {
+   //       return Promise.reject();   // This jumps us out of the function and into the catch below
+   //    }                             // which sends a 401 and empty body.
+   //    // Success case
+   //    res.send(user);
+   // }).catch((e) => {    // catch will run if the findByToken returns an error on the try/catch (i.e.: token not valid)
+   //    res.status(401).send();
+   // });
+});
 
 
 
