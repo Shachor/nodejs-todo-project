@@ -8,7 +8,7 @@ const _ = require('lodash');
 // Require mongoose from the mongoose.js file. Using the ES6 destructuring method
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/todo');
-var {user} = require('./models/user');
+var {User} = require('./models/user');
 
 var app = express();
 const port = process.env.PORT; // || 3000;
@@ -55,7 +55,7 @@ app.get('/todos/:id', (req, res) => {
   // if not valid respond 404 - send back empty send
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
-  };
+  }
 
   //findById
   Todo.findById(id).then((todo) => {
@@ -96,7 +96,7 @@ app.patch('/todos/:id', (req, res) => {
   if (!ObjectID.isValid(id)) {
     console.log('BAD OID');
     return res.status(404).send('BAD OID');
-  };
+  }
 
   // Check for completed property and function accordingly
   if (_.isBoolean(body.completed) && body.completed) {
@@ -104,7 +104,7 @@ app.patch('/todos/:id', (req, res) => {
   } else {
     body.completed = false;
     body.completedAt = null;
-  };
+  }
 
   // Update the todo with data in body variable. Remember to use $set
   Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
@@ -150,6 +150,37 @@ app.delete('/todos/:id', (req, res) => {
 // END DELETE Routes
 //===========================================================================
 
+
+
+//===========================================================================
+// USER Routes
+//===========================================================================
+// POST /users
+app.post('/users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var user = new User(body);
+
+// Model methods - Called on the model - User
+   // User.findByToken (Model method)
+// Instance methods - called on individual objects - user
+   // user.generateAuthToken (instance method)
+
+   // This will save the user in the db, generate the token, then send
+   // the user back to the page
+   user.save().then(() => {
+      return user.generateAuthToken(); //This returns the TOKEN from the Promise in defined instance method
+   }).then((token) => {    // This USES the returned TOKEN.
+      res.header('x-auth', token).send(user);   // The .header() sends data to page. x-auth is custom header sending back token data
+   }).catch((e) => {
+      res.status(400).send(e);
+   });
+
+});
+
+
+//===========================================================================
+// END USER Routes
+//===========================================================================
 
 
 
