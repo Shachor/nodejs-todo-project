@@ -7,6 +7,7 @@ const {ObjectID} = require('mongodb');
 // ADDING OBJECT DEPENDENCIES
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
 const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 
@@ -220,4 +221,95 @@ describe('PATCH /todos/:id', () => {
       //assert response.body is now text and completed is now false, completedAt is null .toNotExist
   });
 });
+// ==========================================================================
+
+
+
+// ==========================================================================
+// DESCRIBE for GET /users/me route
+// ==========================================================================
+describe('GET /users/me', () => {
+   it('should return user if authenticated', (done) => {
+      request(app)
+         .get('/users/me')
+         .set('x-auth', users[0].tokens[0].token)
+         .expect(200)
+         .expect((res) => {
+            expect(res.body._id).toBe(users[0]._id.toHexString());
+            expect(res.body.email).toBe(users[0].email);
+         })
+         .end(done);
+   });
+
+   it('should return a 401 if not authenticated', (done) => {
+      request(app)
+         .get('/users/me')
+         .expect(401)
+         .expect((res) => {
+            expect(res.body).toEqual({});
+         })
+         .end(done);
+   });
+});
+// ==========================================================================
+
+
+
+// ==========================================================================
+// DESCRIBE for POST /users route
+// ==========================================================================
+describe('POST /users', () => {
+   it('should create a user', (done) => {
+      var email = 'someEmail@test.com';
+      var password = 'password1';
+
+      request(app)
+         .post('/users')
+         .send({email, password})
+         .expect(200)
+         .expect((res) => {
+            expect(res.headers['x-auth']).toExist();     // Use [] because x-auth has hypen in it
+            expect(res.body._id).toExist();
+            expect(res.body.email).toExist(email);
+         })
+         .end((err) => {
+            if (err) {
+               return done(err);
+            }
+            // Instead of just ending, we're calling the user back from the db
+            // and making expect assumptions about it.
+            User.findOne({email}).then((user) => {
+               expect(user).toExist();
+               expect(user.password).toNotBe(password);   // password should be hashed
+               done();
+            });
+         });
+   });
+
+   it('should return validation errors if request invalid', (done) => {
+      var email = 'someEmail@@test.com';
+      var password = 'pass';
+
+      request(app)
+         .post('/users')
+         .send({email, password})
+         .expect(400)
+         .end(done);
+   });
+
+   it('should not create user if email is in use', (done) => {
+      var email = 'tester1@test.com';
+      var password = 'password1';
+
+      request(app)
+         .post('/users')
+         .send({email, password})
+         .expect(400)
+         .end(done);
+   });
+});
+
+
+
+
 // ==========================================================================
