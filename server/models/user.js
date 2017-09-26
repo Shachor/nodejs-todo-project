@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
+
 
 // This will store all the properties of our User Model
 // It will allow us to create custom methods such as User.findByToken()
@@ -95,6 +97,25 @@ UserSchema.statics.findByToken = function(token) {
       'tokens.access': 'auth',
    });
 };
+
+
+// This pre function will create the password hash for the user
+UserSchema.pre('save', function(next) {
+   var user = this;
+
+   // We need to check if the password was modified so we don't hash a hash.
+   if (user.isModified('password')) {
+      bcrypt.genSalt(10, (err, salt) => {
+         bcrypt.hash(user.password, salt, (err, hash) => {
+            user.password = hash;
+            next();
+         });
+      });
+   } else {
+      next();
+   }
+});
+
 // =============================================================================
 
 
