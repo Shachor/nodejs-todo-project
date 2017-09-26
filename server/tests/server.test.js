@@ -7,35 +7,15 @@ const {ObjectID} = require('mongodb');
 // ADDING OBJECT DEPENDENCIES
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 
-// ==========================================================================
-// SETUP DATABASE TESTING ENVIRONMENT
-// ==========================================================================
-
-// CREATE DUMMY DATA TO FILL DATABASE
-const todos = [{
-  _id: new ObjectID(),
-  text: "First test item"
-}, {
-  _id: new ObjectID(),
-  text: "Second test item",
-  completed: true,
-  completedAt: 69
-// }, {
-//   _id: new ObjectID(),
-//   text: "THIRD test item"
-}];
 
 // REMOVE ENTRIES FROM DB BEFORE TESTING
 // This will run BEFORE EVERY test case
-beforeEach((done) => {
-  Todo.remove({}).then(() => {
-    return Todo.insertMany(todos);
-  }).then(() => done());
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
-// ==========================================================================
 
 
 

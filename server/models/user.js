@@ -38,9 +38,16 @@ var UserSchema = new mongoose.Schema({
 
 
 // =============================================================================
-// This is our own created Instance method
+// This is our own created Instance method section
 // We use regular functions because arrow functions cannot manpulate (this) keyword
+//============================================================================
 
+
+
+
+//============================================================================
+// OVERRIDE METHODS
+//============================================================================
 // This function will LIMIT the USER data being returned to a webpage
 // We don't need them to have access to PASSWORD or TOKEN data
 UserSchema.methods.toJSON = function() {
@@ -51,8 +58,18 @@ UserSchema.methods.toJSON = function() {
    return _.pick(userObject, ['_id', 'email']);
 };
 
+//============================================================================
 
 
+
+
+
+//============================================================================
+// CUSTOM METHODS
+//============================================================================
+
+// *** INSTANCE METHODS ******************************************************
+// ***************************************************************************
 // This is our custom method to generate a TOKEN then pass that token on to server.js
 UserSchema.methods.generateAuthToken = function() {
    var user = this;
@@ -74,6 +91,10 @@ UserSchema.methods.generateAuthToken = function() {
 };
 
 
+
+
+// *** MODEL METHODS *********************************************************
+// ***************************************************************************
 // Using .statics makes this a MODEL method instead of an INSTANCE method (We use it with User instead of user.)
 UserSchema.statics.findByToken = function(token) {
    var User = this;
@@ -98,7 +119,14 @@ UserSchema.statics.findByToken = function(token) {
    });
 };
 
+//============================================================================
 
+
+
+
+//============================================================================
+// USER PASSWORD HASHING
+//============================================================================
 // This pre function will create the password hash for the user
 UserSchema.pre('save', function(next) {
    var user = this;
