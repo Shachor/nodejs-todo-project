@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
+// const bcrypt = require('bcryptjs');
 
 // Require mongoose from the mongoose.js file. Using the ES6 destructuring method
 var {mongoose} = require('./db/mongoose');
@@ -179,13 +180,6 @@ app.post('/users', (req, res) => {
 });
 
 
-//===========================================================================
-// END USER Routes
-//===========================================================================
-
-
-
-
 
 // AUTH Test route
 app.get('/users/me', authenticate, (req, res) => {
@@ -208,6 +202,53 @@ app.get('/users/me', authenticate, (req, res) => {
    //    res.status(401).send();
    // });
 });
+
+
+app.post('/users/login', (req, res) => {
+   // get the supplied email and password
+   var body = _.pick(req.body, ['email', 'password']);
+
+   User.findByCredentials(body.email, body.password).then((user) => {
+      return user.generateAuthToken().then((token) => {
+         res.header('x-auth', token).send(user);
+      });
+   }).catch((e) => {
+      res.status(400).send();
+   });
+
+   // THSI WORKS, BUT HE WANTS TO CREATE A SPECIAL MODEL method
+   // see if it matches email/pass in db
+   // User.findOne({email: body.email}).then((user) => {
+   //
+   //    if (!user) {
+   //       return res.status(404).send();
+   //    }
+   //
+   //    bcrypt.compare(body.password, user.password, (err, result) => {
+   //       if (!result) {
+   //          return res.status(401).send();
+   //       }
+   //       res.header('x-auth', user.tokens[0].token).send(user);
+   //    });
+   //
+   // }).catch((e) => {
+   //    res.status(400).send(e);
+   // });
+
+});
+
+
+
+
+
+//===========================================================================
+// END USER Routes
+//===========================================================================
+
+
+
+
+
 
 
 

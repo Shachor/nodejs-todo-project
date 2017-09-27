@@ -119,6 +119,35 @@ UserSchema.statics.findByToken = function(token) {
    });
 };
 
+// MODEL METHOD TO AUTHENTICATE BY USER CREDENTIALS
+UserSchema.statics.findByCredentials = function(email, password) {
+   var User = this;
+
+   // Needed to put return in front of this call for it to work, otherwise
+   // the call to findByCredentials returns an undefined to the original call.
+   return User.findOne({email}).then((user) => {
+      if (!user) {
+         return Promise.reject();
+      }
+      // bcrypt does not use Promises, only callbacks. We have used Promises all
+      // through the program and we'll keep using them here.
+      // By returning a new Promise, we are wrapping the bcrypt method inside a
+      // Promise. If bcrypt succeeds it RESOLVES the Promise. If it fails, it REJECTS
+      // the Promise.
+      return new Promise((resolve, reject) => {
+         bcrypt.compare(password, user.password, (err, res) => {
+            if (res) {
+               // console.log(user);
+               resolve(user);
+            } else {
+               reject();
+            }
+         });
+      });
+
+   });
+};
+
 //============================================================================
 
 
