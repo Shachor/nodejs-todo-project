@@ -253,8 +253,6 @@ describe('PATCH /todos/:id', () => {
       //set completed to true
       .expect(404)
       .end(done);
-        //make sure you get 200
-        // custom asertion - text is changed, completed true, completedAt is number .toBeA(number)
   });
 
   it('should clear completedAt when todo is not completed', (done) => {

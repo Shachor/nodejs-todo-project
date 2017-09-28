@@ -75,7 +75,7 @@ UserSchema.methods.generateAuthToken = function() {
    var user = this;
    var access = 'auth';
    // jwt.sign requires object which will be hashed {_id, access} plus secret Salt
-   var token = jwt.sign({_id: user._id.toHexString(), access}, 'SecretValue').toString();
+   var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
    // This will update the user by pushing token and access data into tokens array in user model.
    user.tokens.push({
@@ -115,7 +115,7 @@ UserSchema.statics.findByToken = function(token) {
 
    try{
       // If the token is good, will populate decoded with the user data
-      decoded = jwt.verify(token, 'SecretValue');
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
    } catch (e) {
       // This will return a Promise with the reject() method, telling server.js that the token is unauthorized
       // return new Promise((resolve, reject) => {
