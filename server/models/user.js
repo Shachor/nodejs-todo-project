@@ -91,6 +91,19 @@ UserSchema.methods.generateAuthToken = function() {
 };
 
 
+UserSchema.methods.removeToken = function(token) {
+   // Remove from the user.tokens array any tokens that match the token we are providing
+   // $pull - lets you remove certain items from array that match criteria
+   var user = this;
+
+   return user.update({
+      $pull: {
+         tokens: {token}
+      }
+   });
+};
+
+
 
 
 // *** MODEL METHODS *********************************************************

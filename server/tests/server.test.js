@@ -359,6 +359,33 @@ describe('POST /users/login', () => {
    });
 });
 
+// ==========================================================================
+
+
+
+// ==========================================================================
+// DESCRIBE for DELETE /users/me/token route
+// ==========================================================================
+describe(' DELETE /users/me/token', () => {
+   it('should delete the token from db when called', (done) => {
+      request(app)
+         .delete('/users/me/token')
+         .set('x-auth', users[0].tokens[0].token)
+         .expect(200)
+         .expect((res) => {
+            expect(res.header['x-auth']).toNotExist();
+         })
+         .end((err, res) => {
+            if (err) {
+               return done(err);
+            }
+            User.findById(users[0]._id).then((user) => {
+               expect(user.tokens.length).toBe(0);
+               done();
+            }).catch((e) => done(e));
+         });
+   });
+});
 
 
 
