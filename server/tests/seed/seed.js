@@ -11,20 +11,6 @@ const {User} = require('./../../models/user');
 // SETUP DATABASE TESTING ENVIRONMENT
 // ==========================================================================
 
-// CREATE TEST TODOS DATA TO FILL DATABASE
-const todos = [{
-  _id: new ObjectID(),
-  text: "First test item"
-}, {
-  _id: new ObjectID(),
-  text: "Second test item",
-  completed: true,
-  completedAt: 69
-// }, {
-//   _id: new ObjectID(),
-//   text: "THIRD test item"
-}];
-
 // CREATE TEST USER DATA
 const userOneId = new ObjectID();   //required here so we can call in jwt.sign()
 const userTwoId = new ObjectID();
@@ -41,8 +27,31 @@ const users = [{
    // Second user will not have auth token, useful for testing failure cases
    _id: userTwoId,
    email: 'tester2@test.com',
-   password: 'password2'
+   password: 'password2',
+   tokens: [{
+      access: 'auth',
+      token: jwt.sign({_id: userTwoId, access: 'auth'}, 'SecretValue').toString()
+   }]
 }];
+
+
+// CREATE TEST TODOS DATA TO FILL DATABASE
+const todos = [{
+  _id: new ObjectID(),
+  text: "First test item",
+  _creator: userOneId
+}, {
+  _id: new ObjectID(),
+  text: "Second test item",
+  completed: true,
+  completedAt: 69,
+  _creator: userTwoId
+// }, {
+//   _id: new ObjectID(),
+//   text: "THIRD test item"
+}];
+
+
 
 
 

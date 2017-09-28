@@ -30,9 +30,10 @@ app.use(bodyParser.json());
 //===========================================================================
 // GET and POST Routes
 //===========================================================================
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {   // authenticate gets us the userid and token info
   var todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id    // with the info from authenticate, we can set _creator to user._id
   });
 
   todo.save().then((doc) => {
@@ -42,15 +43,17 @@ app.post('/todos', (req, res) => {
   });
 });
 
-app.get('/todos', (req, res) => {
-  Todo.find().then((todos) => {
+app.get('/todos', authenticate, (req, res) => {
+  Todo.find({
+     _creator: req.user._id      // This lists all todos ONLY for currently logged in user
+ }).then((todos) => {
     res.send({todos});  //Best to send the object instead of array so we can add properties
   }, (e) => {
     res.status(400).send(e);
   });
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
   var id = req.params.id;
   // console.log(id);
   //Validate id using isValid
@@ -60,7 +63,10 @@ app.get('/todos/:id', (req, res) => {
   }
 
   //findById
-  Todo.findById(id).then((todo) => {
+  Todo.findOne({
+     _id: id,
+     _creator: req.user._id
+  }).then((todo) => {
       if (todo) {
         res.send({todo});
       } else {
@@ -84,7 +90,7 @@ app.get('/todos/:id', (req, res) => {
 //===========================================================================
 // UPDATE Routes
 //===========================================================================
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
   // Grab the id from the requesting page
   var id = req.params.id;
   // Use lodash.pick to pull an array of ONLY the text and completed
@@ -109,7 +115,10 @@ app.patch('/todos/:id', (req, res) => {
   }
 
   // Update the todo with data in body variable. Remember to use $set
-  Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todo.findOneAndUpdate({
+    _id: id,
+    _creator: req.user._id
+  }, {$set: body}, {new: true}).then((todo) => {
     if (!todo) {
       console.log('NO DOCUMENT FOUND');
       return res.status(404).send('NO DOCUMENT FOUND');
@@ -130,7 +139,7 @@ app.patch('/todos/:id', (req, res) => {
 //===========================================================================
 // DELETE Routes
 //===========================================================================
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
   // get the id
   var id = req.params.id;
   //validate the id
@@ -140,7 +149,10 @@ app.delete('/todos/:id', (req, res) => {
   }
 
   //remove todo by id
-  Todo.findByIdAndRemove(id).then((todo) => {
+  Todo.findOneAndRemove({
+     _id: id,
+     _creator: req.user._id
+  }).then((todo) => {
     //success - if no doc, send 404. if doc send doc back with 200
     if (!todo) {
       return res.status(404).send();
